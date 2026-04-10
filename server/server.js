@@ -1,10 +1,4 @@
 require('dotenv').config();
-
-// Force IPv4 DNS resolution globally — Render free tier has no IPv6 outbound.
-// Must be set before any network connections are made.
-const dns = require('dns');
-dns.setDefaultResultOrder('ipv4first');
-
 const app = require('./app');
 const sequelize = require('./config/database');
 const { loadAllMasters } = require('./services/cache.service');
