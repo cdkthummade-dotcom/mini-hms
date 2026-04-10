@@ -5,6 +5,8 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
   dialectOptions: {
     ssl: process.env.NODE_ENV === 'production' ? { require: true, rejectUnauthorized: false } : false,
+    // Force IPv4 — Render free tier has no IPv6 outbound; Supabase resolves to both
+    family: 4,
   },
   logging: process.env.NODE_ENV === 'development' ? console.log : false,
   pool: {
