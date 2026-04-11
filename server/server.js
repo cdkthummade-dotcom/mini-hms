@@ -1,4 +1,12 @@
 require('dotenv').config();
+
+// In production, Supabase's direct host is IPv6-only and Render free tier
+// has no IPv6 outbound. Route all pg queries through the Supabase Management
+// API (HTTPS/IPv4) by patching pg.Pool before Sequelize loads it.
+if (process.env.NODE_ENV === 'production' && process.env.SUPABASE_PROJECT_REF) {
+  require('./config/pg-http-patch');
+}
+
 const app = require('./app');
 const sequelize = require('./config/database');
 const { loadAllMasters } = require('./services/cache.service');
