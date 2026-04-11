@@ -71,6 +71,9 @@ class HttpClient extends EventEmitter {
     this.database   = config?.database || 'postgres';
     this.processID  = 1;
     this._connected = false;
+    // Sequelize accesses client.connection.on('parameterStatus', ...) and
+    // client.connection.removeListener(...) — provide a dummy EventEmitter
+    this.connection = new EventEmitter();
   }
 
   /* Sequelize calls client.connect(callback) after new pg.Client() */
