@@ -169,6 +169,7 @@ export default function RegistrationPage() {
 
       setResult({
         uid: data.uid,
+        dailyToken: data.dailyToken || null,
         warnings: data.warnings || [],
         patient: {
           ...form,
@@ -215,7 +216,7 @@ export default function RegistrationPage() {
             ))}
           </div>
         )}
-        <UIDConfirmation uid={result.uid} patient={result.patient} onRegisterAnother={resetForm} />
+        <UIDConfirmation uid={result.uid} patient={result.patient} dailyToken={result.dailyToken} onRegisterAnother={resetForm} />
       </div>
     );
   }

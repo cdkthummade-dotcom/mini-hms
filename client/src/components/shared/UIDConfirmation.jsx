@@ -2,7 +2,7 @@ import { useEffect, useRef, lazy, Suspense } from 'react';
 
 const PrintReceipt = lazy(() => import('./PrintReceipt'));
 
-export default function UIDConfirmation({ uid, patient, onRegisterAnother }) {
+export default function UIDConfirmation({ uid, patient, dailyToken, onRegisterAnother }) {
   const barcodeRef = useRef(null);
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function UIDConfirmation({ uid, patient, onRegisterAnother }) {
       {/* Action Buttons */}
       <div className="flex gap-4 justify-center print:hidden">
         <Suspense fallback={null}>
-          <PrintReceipt uid={uid} patient={patient} />
+          <PrintReceipt uid={uid} patient={patient} dailyToken={dailyToken} />
         </Suspense>
         <button
           onClick={onRegisterAnother}

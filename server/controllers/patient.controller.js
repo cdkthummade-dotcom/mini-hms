@@ -130,7 +130,21 @@ async function createPatient(req, res) {
       warnings.push('MLC document not uploaded — please upload within 24 hours');
     }
 
-    return res.status(201).json({ uid, patientId, warnings });
+    // Daily token = position of this patient in today's queue for this consultant
+    let dailyToken = null;
+    if (value.consultantId) {
+      const [tokenRows] = await sequelize.query(
+        `SELECT COUNT(*) AS token_no FROM patients
+         WHERE consultant_id = $1
+           AND org_id = $2
+           AND DATE(created_at) = CURRENT_DATE
+           AND is_deleted = false`,
+        { bind: [value.consultantId, orgId] },
+      );
+      dailyToken = parseInt(tokenRows[0].token_no, 10) || null;
+    }
+
+    return res.status(201).json({ uid, patientId, dailyToken, warnings });
   } catch (err) {
     await t.rollback();
     console.error('Create patient error:', err);

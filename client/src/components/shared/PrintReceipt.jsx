@@ -3,14 +3,7 @@ import { createPortal } from 'react-dom';
 import { formatDate, formatDateTime } from '../../utils/ageCalculator';
 import { useAuth } from '../../context/AuthContext';
 
-/* Extract token number from UID (e.g. DH2026000042 → 42) */
-function tokenFromUid(uid) {
-  if (!uid) return '—';
-  const match = uid.match(/(\d+)$/);
-  return match ? String(parseInt(match[1], 10)) : uid;
-}
-
-export default function PrintReceipt({ uid, patient }) {
+export default function PrintReceipt({ uid, patient, dailyToken }) {
   const barcodeRef = useRef(null);
   const { user } = useAuth();
 
@@ -28,7 +21,7 @@ export default function PrintReceipt({ uid, patient }) {
   }, [uid]);
 
   const now = new Date().toISOString();
-  const token = tokenFromUid(uid);
+  const token = dailyToken != null ? String(dailyToken) : '—';
 
   const receipt = createPortal(
     <div className="print-receipt">
@@ -36,7 +29,7 @@ export default function PrintReceipt({ uid, patient }) {
         .print-receipt { display: none; }
 
         @media print {
-          @page { size: A4; margin: 12mm 15mm; }
+          @page { size: A4; margin: 0; }
           body > * { display: none !important; }
           .print-receipt {
             display: block !important;
@@ -44,6 +37,8 @@ export default function PrintReceipt({ uid, patient }) {
             font-size: 11px;
             color: #000;
             width: 100%;
+            padding: 12mm 15mm;
+            box-sizing: border-box;
           }
 
           /* ---------- layout helpers ---------- */
@@ -130,9 +125,9 @@ export default function PrintReceipt({ uid, patient }) {
           /* ---------- notes area ---------- */
           .pr-notes-area {
             border: 1px solid #bbb;
-            height: 100px;
+            height: 220px;
             margin: 8px 0;
-            padding: 6px;
+            padding: 8px;
             font-size: 10px;
             color: #aaa;
           }
@@ -174,7 +169,6 @@ export default function PrintReceipt({ uid, patient }) {
       {/* ══════════ BILL META ROW ══════════ */}
       <div className="pr-between" style={{ padding: '2px 0 4px' }}>
         <span><span className="pr-bold">Bill No</span> : {uid}</span>
-        <span><span className="pr-bold">Date &amp; Time</span> : {formatDateTime(now)}</span>
       </div>
       <hr className="pr-hr" />
 
