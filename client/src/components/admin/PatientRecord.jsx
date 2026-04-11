@@ -3,28 +3,6 @@ import api from '../../api/axios';
 import { formatDate, formatDateTime } from '../../utils/ageCalculator';
 import PrintReceipt from '../shared/PrintReceipt';
 
-function Field({ label, value, editKey, readOnly, editMode, form, onChange, isMobile }) {
-  return (
-    <div>
-      <label className="field-label">{label}</label>
-      {editMode && editKey && !readOnly ? (
-        <input
-          type={isMobile ? 'tel' : 'text'}
-          value={form[editKey] ?? ''}
-          maxLength={isMobile ? 10 : undefined}
-          onChange={(e) => {
-            const val = isMobile ? e.target.value.replace(/\D/g, '').slice(0, 10) : e.target.value;
-            onChange(editKey, val);
-          }}
-          className="field-input"
-        />
-      ) : (
-        <p className="text-gray-800 text-sm">{value || '—'}</p>
-      )}
-    </div>
-  );
-}
-
 export default function PatientRecord({ uid, onBack }) {
   const [patient, setPatient] = useState(null);
   const [editMode, setEditMode] = useState(false);
@@ -40,10 +18,6 @@ export default function PatientRecord({ uid, onBack }) {
       setLoading(false);
     });
   }, [uid]);
-
-  function handleFieldChange(key, val) {
-    setForm((prev) => ({ ...prev, [key]: val }));
-  }
 
   async function save() {
     setSaving(true);
@@ -83,7 +57,16 @@ export default function PatientRecord({ uid, onBack }) {
   if (loading) return <div className="p-8 text-center text-gray-500">Loading...</div>;
   if (!patient) return <div className="p-8 text-center text-red-500">Patient not found</div>;
 
-  const fieldProps = { editMode, form, onChange: handleFieldChange };
+  const Field = ({ label, value, editKey, readOnly }) => (
+    <div>
+      <label className="field-label">{label}</label>
+      {editMode && editKey && !readOnly ? (
+        <input type="text" value={form[editKey] || ''} onChange={(e) => setForm({ ...form, [editKey]: e.target.value })} className="field-input" />
+      ) : (
+        <p className="text-gray-800 text-sm">{value || '—'}</p>
+      )}
+    </div>
+  );
 
   return (
     <div>
@@ -98,22 +81,22 @@ export default function PatientRecord({ uid, onBack }) {
 
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          <Field label="Full Name" value={`${patient.first_name} ${patient.middle_name || ''} ${patient.last_name}`} {...fieldProps} />
-          <Field label="First Name" editKey="first_name" value={patient.first_name} {...fieldProps} />
-          <Field label="Last Name" editKey="last_name" value={patient.last_name} {...fieldProps} />
-          <Field label="Gender" value={patient.gender} {...fieldProps} />
-          <Field label="Date of Birth" value={formatDate(patient.dob)} {...fieldProps} />
-          <Field label="Age" value={`${patient.age_years} Yrs ${patient.age_months} Mo ${patient.age_days} Days`} {...fieldProps} />
-          <Field label="Mobile" editKey="mobile" value={`+91 ${patient.mobile}`} isMobile {...fieldProps} />
-          <Field label="City" editKey="city" value={patient.city} {...fieldProps} />
-          <Field label="State" value={patient.state} {...fieldProps} />
-          <Field label="Current Address" editKey="current_address" value={patient.current_address} {...fieldProps} />
-          <Field label="Blood Group" editKey="blood_group" value={patient.blood_group} {...fieldProps} />
-          <Field label="Patient Type" value={patient.patient_type} readOnly {...fieldProps} />
-          <Field label="Consultant" value={patient.consultant} readOnly {...fieldProps} />
-          <Field label="Referred By" value={patient.referred_by} readOnly {...fieldProps} />
-          <Field label="Registered By" value={patient.registered_by} readOnly {...fieldProps} />
-          <Field label="Registered At" value={formatDateTime(patient.created_at)} readOnly {...fieldProps} />
+          <Field label="Full Name" value={`${patient.first_name} ${patient.middle_name || ''} ${patient.last_name}`} />
+          <Field label="First Name" editKey="first_name" value={patient.first_name} />
+          <Field label="Last Name" editKey="last_name" value={patient.last_name} />
+          <Field label="Gender" value={patient.gender} />
+          <Field label="Date of Birth" value={formatDate(patient.dob)} />
+          <Field label="Age" value={`${patient.age_years} Yrs ${patient.age_months} Mo ${patient.age_days} Days`} />
+          <Field label="Mobile" editKey="mobile" value={`+91 ${patient.mobile}`} />
+          <Field label="City" editKey="city" value={patient.city} />
+          <Field label="State" value={patient.state} />
+          <Field label="Current Address" editKey="current_address" value={patient.current_address} />
+          <Field label="Blood Group" editKey="blood_group" value={patient.blood_group} />
+          <Field label="Patient Type" value={patient.patient_type} readOnly />
+          <Field label="Consultant" value={patient.consultant} readOnly />
+          <Field label="Referred By" value={patient.referred_by} readOnly />
+          <Field label="Registered By" value={patient.registered_by} readOnly />
+          <Field label="Registered At" value={formatDateTime(patient.created_at)} readOnly />
         </div>
       </div>
 
