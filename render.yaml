@@ -6,7 +6,7 @@ services:
     plan: free
     rootDir: server
     buildCommand: npm install
-    startCommand: node --dns-result-order=ipv4first server.js
+    startCommand: node server.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -27,3 +27,13 @@ services:
       - key: CLIENT_URL
         sync: false
     healthCheckPath: /api/health
+
+  - type: static_site
+    name: mini-hms-client
+    rootDir: client
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://mini-hms.onrender.com
