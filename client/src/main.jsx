@@ -55,7 +55,7 @@ function App() {
       {!serverReady && <ServerWakeUp onReady={handleReady} />}
       <AuthProvider>
         <MasterDataProvider>
-          <BrowserRouter>
+          <BrowserRouter basename={import.meta.env.BASE_URL}>
             <AppRoutes />
           </BrowserRouter>
         </MasterDataProvider>
