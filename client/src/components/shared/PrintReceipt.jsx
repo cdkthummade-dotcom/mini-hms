@@ -167,7 +167,6 @@ export default function PrintReceipt({ uid, patient, dailyToken }) {
 
       {/* ══════════ BILL NO ROW ══════════ */}
       <div className="pr-between" style={{ padding: '2px 0', flexShrink: 0 }}>
-        <span><span className="pr-bold">Bill No</span> : {billNo}</span>
         <span><span className="pr-bold">Reg. Date</span> : {formatDateTime(now)}</span>
       </div>
       <hr className="pr-hr" />
