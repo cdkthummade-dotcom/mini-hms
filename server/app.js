@@ -24,10 +24,11 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// CORS — allow Vite dev server and Vercel production
+// CORS — allow Vite dev server and production frontend
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
+  'https://cdkthummade-dotcom.github.io',
   process.env.CLIENT_URL,
 ].filter(Boolean);
 
