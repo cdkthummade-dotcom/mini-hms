@@ -22,8 +22,9 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401 && window.location.pathname !== '/login') {
-      window.location.href = '/login';
+    const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+    if (err.response?.status === 401 && window.location.pathname !== `${base}/login`) {
+      window.location.href = `${base}/login`;
     }
     return Promise.reject(err);
   },
