@@ -6,19 +6,17 @@
  * Replaces pg.Pool and pg.Client with HTTP-based equivalents that route all
  * SQL through the Supabase Management API (HTTPS/IPv4).
  *
- * Why: Render free tier has no IPv6 outbound. Supabase free tier direct DB
- * host is IPv6-only (no A record). The Management API endpoint is reachable
- * over IPv4/HTTPS from anywhere.
- *
+ * Render free tier has no IPv6 outbound; Supabase direct host is IPv6-only.
  * Must be required BEFORE sequelize or pg to take effect.
  */
 
+const { EventEmitter } = require('events');
 const axios = require('axios');
 
 const MGMT_URL = `https://api.supabase.com/v1/projects/${process.env.SUPABASE_PROJECT_REF}/database/query`;
-const AUTH_HDR = `Bearer ${process.env.SUPABASE_MANAGEMENT_TOKEN}`;
+const AUTH_HDR  = `Bearer ${process.env.SUPABASE_MANAGEMENT_TOKEN}`;
 
-/* ── value escaping ───────────────────────────────────────────────────── */
+/* ── value escaping ─────────────────────────────────────────────────── */
 function escapeVal(val) {
   if (val === null || val === undefined) return 'NULL';
   if (typeof val === 'boolean')          return val ? 'TRUE' : 'FALSE';
@@ -26,24 +24,23 @@ function escapeVal(val) {
   if (val instanceof Date)               return `'${val.toISOString()}'`;
   if (Array.isArray(val))                return `ARRAY[${val.map(escapeVal).join(',')}]`;
   if (typeof val === 'object')           return `'${JSON.stringify(val).replace(/'/g, "''")}'::jsonb`;
-  // string — replace backslash then single-quote
   return `'${String(val).replace(/\\/g, '\\\\').replace(/'/g, "''")}'`;
 }
 
 function inlineParams(text, values) {
   if (!values || values.length === 0) return text;
   let sql = text;
-  // Replace $N from largest to smallest so $10 isn't partially matched by $1
+  // Replace from largest index first so $10 isn't partially hit by $1
   for (let i = values.length; i >= 1; i--) {
     sql = sql.split('$' + i).join(escapeVal(values[i - 1]));
   }
   return sql;
 }
 
-/* ── no-op statements that can't go through the management API ────────── */
-const NOOP_RE = /^\s*(BEGIN|COMMIT|ROLLBACK|SET\s|SAVEPOINT|RELEASE\s|ROLLBACK\s+TO|DEALLOCATE|DISCARD)/i;
+/* ── statements that are no-ops over HTTP (transaction management) ───── */
+const NOOP_RE = /^\s*(BEGIN|COMMIT|ROLLBACK|SET\s|SAVEPOINT|RELEASE\s+SAVEPOINT|ROLLBACK\s+TO|DEALLOCATE|DISCARD)/i;
 
-/* ── core HTTP executor ───────────────────────────────────────────────── */
+/* ── core HTTP executor ─────────────────────────────────────────────── */
 async function runSQL(text, values) {
   const sql = inlineParams(text, values);
 
@@ -62,14 +59,29 @@ async function runSQL(text, values) {
   } catch (err) {
     const msg = err.response?.data?.message || err.response?.data?.error || err.message;
     const pgErr = new Error(msg);
-    pgErr.code = err.response?.data?.code || 'XX000';
+    pgErr.code  = err.response?.data?.code || 'XX000';
     throw pgErr;
   }
 }
 
-/* ── fake pg.Client ───────────────────────────────────────────────────── */
-class HttpClient {
-  constructor() {}
+/* ── fake pg.Client (Sequelize uses new pg.Client() directly) ───────── */
+class HttpClient extends EventEmitter {
+  constructor(config) {
+    super();
+    this.database   = config?.database || 'postgres';
+    this.processID  = 1;
+    this._connected = false;
+  }
+
+  /* Sequelize calls client.connect(callback) after new pg.Client() */
+  connect(callback) {
+    this._connected = true;
+    if (typeof callback === 'function') {
+      callback(null);
+      return;
+    }
+    return Promise.resolve();
+  }
 
   query(textOrConfig, values, callback) {
     let text, params;
@@ -96,33 +108,29 @@ class HttpClient {
     return promise;
   }
 
-  release()    {}
-  async end()  {}
+  /* Sequelize may call end() when cleaning up */
+  end(callback) {
+    this._connected = false;
+    if (typeof callback === 'function') callback(null);
+    else return Promise.resolve();
+  }
 
-  // Sequelize checks these
-  get processID() { return 1; }
+  release() {}
 }
 
-/* ── fake pg.Pool ─────────────────────────────────────────────────────── */
-class HttpPool {
-  constructor() {}
+/* ── fake pg.Pool (some Sequelize paths use pool.connect()) ─────────── */
+class HttpPool extends EventEmitter {
+  constructor() { super(); }
 
-  async connect()                        { return new HttpClient(); }
-  query(text, values, cb)               { return new HttpClient().query(text, values, cb); }
-  async end()                            {}
-
-  // EventEmitter stubs
-  on()             { return this; }
-  off()            { return this; }
-  once()           { return this; }
-  emit()           { return false; }
-  removeListener() { return this; }
-  removeAllListeners() { return this; }
+  async connect()          { return new HttpClient(); }
+  query(text, vals, cb)   { return new HttpClient().query(text, vals, cb); }
+  async end()              {}
 }
 
-/* ── patch pg in the module cache ─────────────────────────────────────── */
-const pg = require('pg');
-pg.Pool   = HttpPool;
-pg.Client = HttpClient;
+/* ── patch pg in the module cache ───────────────────────────────────── */
+const pg     = require('pg');
+pg.Pool      = HttpPool;
+pg.Client    = HttpClient;
+// Keep pg.types so Sequelize's type parsers still register
 
 console.log('[pg-http-patch] All DB queries routed via Supabase HTTPS API (IPv4)');
