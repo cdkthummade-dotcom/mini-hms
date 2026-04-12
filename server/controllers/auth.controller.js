@@ -1,8 +1,10 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const sequelize = require('../config/database');
 const { loadAllMasters } = require('../services/cache.service');
 
 const SESSION_DURATION_MS = 8 * 60 * 60 * 1000; // 8 hours
+const JWT_SECRET = process.env.SESSION_SECRET || 'dev-secret-change-in-production';
 
 async function login(req, res) {
   const { username, password } = req.body;
@@ -62,7 +64,7 @@ async function login(req, res) {
     const loginTime = new Date();
     const expiresAt = new Date(loginTime.getTime() + SESSION_DURATION_MS);
 
-    req.session.user = {
+    const userData = {
       id: user.id,
       orgId: user.org_id,
       centerId: user.center_id,
@@ -74,20 +76,16 @@ async function login(req, res) {
       expiresAt: expiresAt.toISOString(),
     };
 
+    // Store in session (for devices that accept cookies)
+    req.session.user = userData;
+
     // Pre-load masters into Redis for this org
     loadAllMasters(user.org_id).catch(console.error);
 
-    return res.json({
-      id: user.id,
-      username: user.username,
-      fullName: user.full_name,
-      role: user.role,
-      orgId: user.org_id,
-      centerId: user.center_id,
-      orgCode,
-      loginTime: loginTime.toISOString(),
-      expiresAt: expiresAt.toISOString(),
-    });
+    // Generate JWT (for devices that block third-party cookies)
+    const token = jwt.sign(userData, JWT_SECRET, { expiresIn: '8h' });
+
+    return res.json({ ...userData, token });
   } catch (err) {
     console.error('Login error:', err);
     return res.status(500).json({ error: 'Server error' });
@@ -103,6 +101,7 @@ async function logout(req, res) {
 }
 
 async function me(req, res) {
+  // req.session.user is set by either session cookie or JWT (via auth middleware)
   return res.json(req.session.user);
 }
 

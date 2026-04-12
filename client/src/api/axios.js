@@ -11,9 +11,15 @@ const api = axios.create({
 });
 
 // Strip /api prefix if baseURL already ends with /api
+// AND attach JWT token for devices that block third-party cookies
 api.interceptors.request.use((config) => {
   if (config.baseURL && config.baseURL.endsWith('/api') && config.url?.startsWith('/api/')) {
     config.url = config.url.replace('/api/', '/');
+  }
+  // Attach JWT token if available (fallback for blocked cookies)
+  const token = localStorage.getItem('hms_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
