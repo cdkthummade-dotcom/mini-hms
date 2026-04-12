@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HMS</title>
+  <script>
+    // GitHub Pages SPA Redirect
+    // When a user navigates directly to /mini-hms/login (or refreshes),
+    // GitHub Pages serves this 404.html. We redirect them back to index.html
+    // with the intended path encoded as ?p=/login so React Router can handle it.
+    var base = '/mini-hms';
+    var path = window.location.pathname.slice(base.length) || '/';
+    // Avoid redirect loops — only redirect if path is a real SPA route, not an asset
+    if (!path.match(/\.(js|css|png|jpg|svg|ico|json|woff|woff2|ttf)$/)) {
+      window.location.replace(
+        window.location.origin + base + '/?p=' + encodeURIComponent(path) + window.location.hash
+      );
+    }
+  </script>
+</head>
+<body></body>
+</html>
