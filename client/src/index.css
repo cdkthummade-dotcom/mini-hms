@@ -35,6 +35,24 @@
   }
 }
 
+/* Animated gradient background for login page */
+.login-bg {
+  background: linear-gradient(-45deg, #667eea, #764ba2, #4facfe, #43e97b);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Session timer text colors for dark header */
+header .text-green-600 { color: #86efac; }
+header .text-yellow-600 { color: #fde047; }
+header .text-red-600 { color: #fca5a5; }
+
 /* Print styles */
 @media print {
   nav, header, aside, button, .print\:hidden {

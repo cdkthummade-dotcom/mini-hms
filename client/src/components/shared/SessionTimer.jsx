@@ -38,10 +38,10 @@ export default function SessionTimer() {
           </p>
         </div>
       )}
-      <div className="text-xs text-gray-500 flex gap-4">
-        <span>Logged in at: <strong>{formatDateTime(user.loginTime)}</strong></span>
-        <span>Expires at: <strong>{formatDateTime(user.expiresAt)}</strong></span>
-        {!showWarning && remaining && <span className="text-green-600">{remaining} left</span>}
+      <div className="text-xs text-blue-200 flex gap-4">
+        <span>Logged in: <strong className="text-white">{formatDateTime(user.loginTime)}</strong></span>
+        <span>Expires: <strong className="text-white">{formatDateTime(user.expiresAt)}</strong></span>
+        {!showWarning && remaining && <span className="text-green-300 font-semibold">{remaining} left</span>}
       </div>
     </>
   );
