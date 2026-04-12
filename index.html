@@ -8,12 +8,30 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="/mini-hms/assets/index-uzmxXMdT.js"></script>
+    <!--
+      GitHub Pages SPA route restore.
+      Reads the path that 404.html encoded into ?p=... and restores it
+      via history.replaceState BEFORE React Router initializes,
+      so the app boots on the correct route.
+    -->
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var p = params.get('p');
+        if (p) {
+          var q = params.get('q') ? '?' + decodeURIComponent(params.get('q')) : '';
+          var hash = window.location.hash;
+          var base = '/mini-hms';
+          window.history.replaceState(null, '', base + decodeURIComponent(p) + q + hash);
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/mini-hms/assets/index-8Moog37r.js"></script>
     <link rel="modulepreload" crossorigin href="/mini-hms/assets/vendor--ejHCorC.js">
     <link rel="modulepreload" crossorigin href="/mini-hms/assets/axios-BOeqtr82.js">
-    <link rel="stylesheet" crossorigin href="/mini-hms/assets/index-CMlSyrNK.css">
+    <link rel="stylesheet" crossorigin href="/mini-hms/assets/index-DU3wEAtc.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"></div>
   </body>
 </html>
