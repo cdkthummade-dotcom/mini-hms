@@ -21,11 +21,14 @@ export default function AuditLog() {
 
   useEffect(() => { load(1); }, []); // eslint-disable-line
 
-  async function load(p = 1) {
+  // overrideFilters allows Clear to pass empty filters without waiting
+  // for React to flush the setFilters state update (state is async).
+  async function load(p = 1, overrideFilters) {
     setLoading(true);
+    const activeFilters = overrideFilters !== undefined ? overrideFilters : filters;
     try {
       const { data } = await api.get('/api/audit/log', {
-        params: { page: p, ...filters },
+        params: { page: p, ...activeFilters },
       });
       setLogs(data.logs);
       setTotal(data.total);
@@ -54,7 +57,14 @@ export default function AuditLog() {
         <input type="date" value={filters.fromDate} onChange={(e) => setFilters({ ...filters, fromDate: e.target.value })} className="field-input w-40" />
         <input type="date" value={filters.toDate} onChange={(e) => setFilters({ ...filters, toDate: e.target.value })} className="field-input w-40" />
         <button onClick={() => load(1)} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">Apply</button>
-        <button onClick={() => { setFilters({ action: '', fromDate: '', toDate: '' }); }} className="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg text-sm hover:bg-gray-50">Clear</button>
+        <button
+          onClick={() => {
+            const empty = { action: '', fromDate: '', toDate: '' };
+            setFilters(empty);
+            load(1, empty); // pass directly — don't rely on stale state
+          }}
+          className="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg text-sm hover:bg-gray-50"
+        >Clear</button>
       </div>
 
       {loading && <p className="text-gray-500 text-sm mb-4">Loading...</p>}
@@ -72,6 +82,13 @@ export default function AuditLog() {
             </tr>
           </thead>
           <tbody>
+            {logs.length === 0 && !loading && (
+              <tr>
+                <td colSpan={isSuperAdmin ? 6 : 4} className="px-4 py-8 text-center text-gray-400 text-sm">
+                  No audit log entries found.
+                </td>
+              </tr>
+            )}
             {logs.map((log) => (
               <tr key={log.id} onClick={() => setSelected(selected?.id === log.id ? null : log)}
                 className="border-b border-gray-100 cursor-pointer hover:bg-gray-50">

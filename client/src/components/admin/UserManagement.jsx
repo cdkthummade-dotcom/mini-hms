@@ -44,9 +44,13 @@ export default function UserManagement() {
 
   async function deactivate(id) {
     if (!confirm('Deactivate this user? They will not be able to log in.')) return;
-    await api.delete(`/api/users/${id}`);
-    loadUsers();
-    setMsg('User deactivated.');
+    try {
+      await api.delete(`/api/users/${id}`);
+      loadUsers();
+      setMsg('User deactivated.');
+    } catch (err) {
+      setMsg(err.response?.data?.error || 'Deactivate failed');
+    }
   }
 
   async function forceLogout(sid) {

@@ -12,10 +12,11 @@ export default function PatientSearch() {
   const [showDeleted, setShowDeleted] = useState(false);
   const [selected, setSelected] = useState(null);
 
-  async function search(p = 1) {
+  async function search(p = 1, overrideShowDeleted) {
     setLoading(true);
     try {
-      const { data } = await api.get('/api/patients/search', { params: { q, page: p, showDeleted } });
+      const deleted = overrideShowDeleted !== undefined ? overrideShowDeleted : showDeleted;
+      const { data } = await api.get('/api/patients/search', { params: { q, page: p, showDeleted: deleted } });
       setResults(data.patients);
       setTotal(data.total);
       setPage(p);
@@ -46,7 +47,7 @@ export default function PatientSearch() {
           Search
         </button>
         <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-          <input type="checkbox" checked={showDeleted} onChange={(e) => setShowDeleted(e.target.checked)} className="accent-blue-600" />
+          <input type="checkbox" checked={showDeleted} onChange={(e) => { setShowDeleted(e.target.checked); search(1, e.target.checked); }} className="accent-blue-600" />
           Show deleted
         </label>
       </div>

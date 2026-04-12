@@ -2,6 +2,16 @@ import { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import { formatDateTime } from '../../utils/ageCalculator';
 
+// Card defined OUTSIDE Dashboard to avoid remounting on every re-render
+function Card({ label, value, color = 'blue' }) {
+  return (
+    <div className={`bg-${color}-50 border border-${color}-200 rounded-xl p-5`}>
+      <p className={`text-${color}-500 text-sm font-medium`}>{label}</p>
+      <p className={`text-${color}-900 text-4xl font-black mt-1`}>{value ?? '—'}</p>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [recent, setRecent] = useState([]);
@@ -24,13 +34,6 @@ export default function Dashboard() {
   }, []);
 
   if (loading) return <div className="p-8 text-center text-gray-500">Loading dashboard...</div>;
-
-  const Card = ({ label, value, color = 'blue' }) => (
-    <div className={`bg-${color}-50 border border-${color}-200 rounded-xl p-5`}>
-      <p className={`text-${color}-500 text-sm font-medium`}>{label}</p>
-      <p className={`text-${color}-900 text-4xl font-black mt-1`}>{value ?? '—'}</p>
-    </div>
-  );
 
   return (
     <div>

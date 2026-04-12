@@ -3,8 +3,10 @@ import api from '../api/axios';
 
 const AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
+export function AuthProvider({ children, serverReady }) {
   const [user, setUser] = useState(null);
+  // Keep loading=true until we know server is ready AND we've checked the session.
+  // This prevents the ProtectedRoute from flashing the login page during cold-start.
   const [loading, setLoading] = useState(true);
 
   const fetchMe = useCallback(async () => {
@@ -18,7 +20,13 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  useEffect(() => { fetchMe(); }, [fetchMe]);
+  // Only check session once the server is confirmed awake.
+  // serverReady is undefined when used without the prop (e.g. in tests),
+  // so we treat undefined as "ready" for backward compatibility.
+  useEffect(() => {
+    if (serverReady === false) return; // still waking up — stay in loading state
+    fetchMe();
+  }, [serverReady, fetchMe]);
 
   const login = async (username, password) => {
     const { data } = await api.post('/api/auth/login', { username, password });
@@ -27,8 +35,12 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    await api.post('/api/auth/logout');
+    try {
+      await api.post('/api/auth/logout');
+    } catch (_) { /* best effort — session may already be expired */ }
     setUser(null);
+    const base = import.meta.env.BASE_URL?.replace(/\/$/, '') || '';
+    window.location.replace(`${base}/login`);
   };
 
   return (

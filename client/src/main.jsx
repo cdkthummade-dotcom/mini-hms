@@ -52,8 +52,16 @@ function App() {
 
   return (
     <>
+      {/* Always show wake-up screen while server is starting */}
       {!serverReady && <ServerWakeUp onReady={handleReady} />}
-      <AuthProvider>
+
+      {/*
+        AuthProvider is always mounted (so context exists for children),
+        but it receives `serverReady` and only calls /api/auth/me once
+        the server health check passes. This prevents a false 401
+        during cold-start that would set user=null permanently.
+      */}
+      <AuthProvider serverReady={serverReady}>
         <MasterDataProvider>
           <BrowserRouter basename={import.meta.env.BASE_URL}>
             <AppRoutes />

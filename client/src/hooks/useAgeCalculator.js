@@ -8,8 +8,8 @@ export function useAgeCalculator() {
   const [ageDays, setAgeDays] = useState(0);
   const [manualMode, setManualMode] = useState(false);
 
-  const fromDOB = useCallback((dob) => {
-    if (!dob || manualMode) return;
+  const fromDOB = useCallback((dob, forceRun = false) => {
+    if (!dob || (manualMode && !forceRun)) return;
     const result = calculateAge(dob);
     if (!result) { setAgeDisplay('Invalid date'); return; }
     setAgeYears(result.years);
@@ -25,10 +25,27 @@ export function useAgeCalculator() {
     setAgeDisplay(`${years || 0} Yrs ${months || 0} Mo ${days || 0} Days`);
   }, []);
 
-  const toggleManual = useCallback(() => {
-    setManualMode((prev) => !prev);
-    setAgeDisplay('');
-    setAgeYears(0); setAgeMonths(0); setAgeDays(0);
+  // Pass currentDob so we can recalculate when switching back to DOB mode
+  const toggleManual = useCallback((currentDob) => {
+    setManualMode((prev) => {
+      const next = !prev;
+      if (!next && currentDob) {
+        // Switching back to DOB mode — recalculate from existing DOB
+        const result = calculateAge(currentDob);
+        if (result) {
+          setAgeYears(result.years);
+          setAgeMonths(result.months);
+          setAgeDays(result.days);
+          setAgeDisplay(result.display);
+        } else {
+          setAgeYears(0); setAgeMonths(0); setAgeDays(0); setAgeDisplay('');
+        }
+      } else if (next) {
+        // Entering manual mode — clear age display
+        setAgeYears(0); setAgeMonths(0); setAgeDays(0); setAgeDisplay('');
+      }
+      return next;
+    });
   }, []);
 
   return { ageDisplay, ageYears, ageMonths, ageDays, manualMode, fromDOB, setManual, toggleManual };

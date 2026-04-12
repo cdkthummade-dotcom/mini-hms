@@ -41,7 +41,7 @@ export default function BlockC_Demographics({ data, onChange, autoFilled = {} })
             disabled={manualMode}
             className={`field-input ${autoFilled.dob ? 'bg-blue-50' : ''} ${manualMode ? 'opacity-50' : ''}`}
           />
-          <button type="button" onClick={toggleManual}
+          <button type="button" onClick={() => toggleManual(data.dob)}
             className="text-xs text-blue-600 mt-1 underline hover:no-underline">
             {manualMode ? 'Use date picker instead' : "DOB unknown? Enter age manually"}
           </button>

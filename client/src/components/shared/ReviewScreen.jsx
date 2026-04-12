@@ -1,18 +1,22 @@
 import { formatDate } from '../../utils/ageCalculator';
 
-export default function ReviewScreen({ formData, masterLabels, onEdit, onConfirm, submitting }) {
+// Row defined OUTSIDE to prevent React remounting on every re-render
+function Row({ label, value }) {
+  if (!value) return null;
+  return (
+    <div className="flex py-1.5 border-b border-gray-100 last:border-0">
+      <span className="text-gray-500 w-40 shrink-0 text-sm">{label}</span>
+      <span className="text-gray-900 text-sm font-medium">{value}</span>
+    </div>
+  );
+}
+
+export default function ReviewScreen({ formData, onEdit, onConfirm, submitting }) {
   const { salutation, firstName, middleName, lastName, gender, dob, ageYears, ageMonths, ageDays,
           mobile, alternateMobile, pincode, area, city, district, state,
           currentAddress, permanentAddress, patientTypeName, referredByName, consultantName,
           bloodGroup, maritalStatusName, isEmployee, employeeId, isMlc,
           mlcAccompaniedBy, mlcPoliceBatchNo, mlcIncidentSpot } = formData;
-
-  const Row = ({ label, value }) => value ? (
-    <div className="flex py-1.5 border-b border-gray-100 last:border-0">
-      <span className="text-gray-500 w-40 shrink-0 text-sm">{label}</span>
-      <span className="text-gray-900 text-sm font-medium">{value}</span>
-    </div>
-  ) : null;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
@@ -100,3 +104,4 @@ export default function ReviewScreen({ formData, masterLabels, onEdit, onConfirm
     </div>
   );
 }
+

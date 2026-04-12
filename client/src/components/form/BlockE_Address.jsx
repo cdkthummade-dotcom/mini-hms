@@ -57,7 +57,7 @@ export default function BlockE_Address({ data, onChange, autoFilled = {} }) {
 
         {/* Area */}
         <div>
-          <label className="field-label">Area <span className="text-red-500">*</span></label>
+          <label className="field-label">Area</label>
           {!manualMode && areas.length > 1 ? (
             <select
               value={data.area || ''}
@@ -82,8 +82,8 @@ export default function BlockE_Address({ data, onChange, autoFilled = {} }) {
         <div>
           <label className="field-label">City <span className="text-red-500">*</span></label>
           <input type="text" value={data.city || ''} onChange={(e) => onChange({ city: e.target.value })}
-            readOnly={!manualMode && !!data.city && !autoFilled.city}
-            className={`field-input ${!manualMode && data.city ? 'bg-gray-50' : ''} ${autoFilled.city ? 'bg-blue-50' : ''}`} />
+            placeholder="City"
+            className={`field-input ${autoFilled.city ? 'bg-blue-50' : ''}`} />
         </div>
       </div>
 
@@ -92,16 +92,16 @@ export default function BlockE_Address({ data, onChange, autoFilled = {} }) {
         <div>
           <label className="field-label">District <span className="text-red-500">*</span></label>
           <input type="text" value={data.district || ''} onChange={(e) => onChange({ district: e.target.value })}
-            readOnly={!manualMode && !!data.district}
-            className={`field-input ${!manualMode && data.district ? 'bg-gray-50' : ''} ${autoFilled.district ? 'bg-blue-50' : ''}`} />
+            placeholder="District"
+            className={`field-input ${autoFilled.district ? 'bg-blue-50' : ''}`} />
         </div>
 
         {/* State */}
         <div>
           <label className="field-label">State <span className="text-red-500">*</span></label>
           <input type="text" value={data.state || ''} onChange={(e) => onChange({ state: e.target.value })}
-            readOnly={!manualMode && !!data.state}
-            className={`field-input ${!manualMode && data.state ? 'bg-gray-50' : ''} ${autoFilled.state ? 'bg-blue-50' : ''}`} />
+            placeholder="State"
+            className={`field-input ${autoFilled.state ? 'bg-blue-50' : ''}`} />
         </div>
       </div>
 

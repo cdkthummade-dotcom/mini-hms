@@ -55,6 +55,10 @@ async function updateUser(req, res) {
   if (password) { const h = await bcrypt.hash(password, 12); bind.push(h); updates.push(`password_hash=$${bind.length}`); }
   if (isActive !== undefined) { bind.push(isActive); updates.push(`is_active=$${bind.length}`); }
 
+  if (password && password.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  }
+
   if (!updates.length) return res.status(400).json({ error: 'Nothing to update' });
 
   bind.push(id); bind.push(orgId);
@@ -72,6 +76,11 @@ async function deactivateUser(req, res) {
   const { id } = req.params;
   const { orgId, id: userId } = req.session.user;
 
+  // Prevent self-deactivation
+  if (parseInt(id) === userId) {
+    return res.status(400).json({ error: 'You cannot deactivate your own account' });
+  }
+
   await sequelize.query(
     `UPDATE users SET is_active=false, updated_at=NOW() WHERE id=$1 AND org_id=$2`,
     { bind: [id, orgId] },
@@ -85,28 +94,32 @@ async function deactivateUser(req, res) {
 async function getActiveSessions(req, res) {
   const redis = getRedisClient();
   const { orgId } = req.session.user;
-
-  // Scan for all session keys
-  const keys = await redis.keys('sess:*');
   const sessions = [];
 
-  for (const key of keys) {
-    try {
-      const raw = await redis.get(key);
-      if (!raw) continue;
-      const sess = JSON.parse(raw);
-      if (sess.user && sess.user.orgId === orgId) {
-        sessions.push({
-          sessionId: key.replace('sess:', ''),
-          username: sess.user.username,
-          fullName: sess.user.fullName,
-          role: sess.user.role,
-          loginTime: sess.user.loginTime,
-          expiresAt: sess.user.expiresAt,
-        });
-      }
-    } catch (_) { /* skip malformed */ }
-  }
+  // Use SCAN instead of KEYS to avoid blocking Redis in production
+  let cursor = 0;
+  do {
+    const result = await redis.scan(cursor, 'MATCH', 'sess:*', 'COUNT', 100);
+    cursor = parseInt(result[0]);
+    const keys = result[1];
+    for (const key of keys) {
+      try {
+        const raw = await redis.get(key);
+        if (!raw) continue;
+        const sess = JSON.parse(raw);
+        if (sess.user && sess.user.orgId === orgId) {
+          sessions.push({
+            sessionId: key.replace('sess:', ''),
+            username: sess.user.username,
+            fullName: sess.user.fullName,
+            role: sess.user.role,
+            loginTime: sess.user.loginTime,
+            expiresAt: sess.user.expiresAt,
+          });
+        }
+      } catch (_) { /* skip malformed */ }
+    }
+  } while (cursor !== 0);
 
   return res.json(sessions);
 }

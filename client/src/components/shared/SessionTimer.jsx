@@ -14,7 +14,6 @@ export default function SessionTimer() {
       const ms = new Date(user.expiresAt) - new Date();
       if (ms <= 0) {
         logout();
-        window.location.href = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/login`;
         return;
       }
       const mins = Math.floor(ms / 60000);

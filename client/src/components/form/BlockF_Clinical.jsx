@@ -42,7 +42,7 @@ export default function BlockF_Clinical({ data, onChange }) {
           <label className="field-label">Consultant Doctor</label>
           <select value={data.consultantId || ''} onChange={(e) => onChange({ consultantId: e.target.value })} className="field-input">
             <option value="">Select consultant</option>
-            {masters.consultant.map((c) => <option key={c.id} value={c.id}>{c.name} — {c.department}</option>)}
+            {masters.consultant.map((c) => <option key={c.id} value={c.id}>{c.name}{c.department ? ` — ${c.department}` : ''}</option>)}
           </select>
         </div>
       </div>

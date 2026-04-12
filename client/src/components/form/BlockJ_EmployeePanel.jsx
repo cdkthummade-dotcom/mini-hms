@@ -1,12 +1,15 @@
-export default function BlockJ_EmployeePanel({ employee }) {
-  if (!employee) return null;
-
-  const Row = ({ label, value }) => (
+// Row defined OUTSIDE to avoid React remounting it on every re-render
+function Row({ label, value }) {
+  return (
     <div className="flex py-2 border-b border-blue-100 last:border-0">
       <span className="text-blue-500 w-40 shrink-0 text-sm">{label}</span>
       <span className="text-gray-800 text-sm font-medium">{value || '—'}</span>
     </div>
   );
+}
+
+export default function BlockJ_EmployeePanel({ employee }) {
+  if (!employee) return null;
 
   return (
     <div id="block-j" className="form-block bg-blue-50 border border-blue-200">

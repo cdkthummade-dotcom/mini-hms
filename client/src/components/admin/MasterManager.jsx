@@ -23,6 +23,8 @@ export default function MasterManager() {
   const [form, setForm] = useState({});
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [msgType, setMsgType] = useState('success'); // 'success' | 'error'
   const { refresh } = useMasters();
 
   const config = MASTER_CONFIG[selected];
@@ -52,16 +54,26 @@ export default function MasterManager() {
       setEditId(null);
       await loadItems();
       await refresh(config.refreshKey);
+      setMsgType('success');
+      setMsg(editId ? 'Entry updated successfully.' : 'Entry added successfully.');
     } catch (err) {
-      alert(err.response?.data?.error || 'Save failed');
+      setMsgType('error');
+      setMsg(err.response?.data?.error || 'Save failed');
     }
   }
 
   async function deactivate(id) {
-    if (!confirm('Deactivate this entry? It will be hidden from dropdowns.')) return;
-    await api.delete(`/api/masters/${config.endpoint}/${id}`);
-    await loadItems();
-    await refresh(config.refreshKey);
+    if (!confirm('Deactivate this entry? It will be hidden from dropdowns but existing patient records are not affected.')) return;
+    try {
+      await api.delete(`/api/masters/${config.endpoint}/${id}`);
+      await loadItems();
+      await refresh(config.refreshKey);
+      setMsgType('success');
+      setMsg('Entry deactivated.');
+    } catch (err) {
+      setMsgType('error');
+      setMsg(err.response?.data?.error || 'Deactivate failed');
+    }
   }
 
   const valueKey = config.valueKey;
@@ -69,6 +81,16 @@ export default function MasterManager() {
   return (
     <div>
       <h2 className="text-xl font-bold text-gray-800 mb-6">Master Management</h2>
+
+      {msg && (
+        <div className={`border rounded-lg px-4 py-2 mb-4 text-sm ${
+          msgType === 'success'
+            ? 'bg-green-50 border-green-300 text-green-700'
+            : 'bg-red-50 border-red-300 text-red-700'
+        }`}>
+          {msg}
+        </div>
+      )}
 
       {/* Master Selector */}
       <div className="flex flex-wrap gap-2 mb-6">

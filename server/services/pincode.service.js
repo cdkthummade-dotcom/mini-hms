@@ -19,7 +19,7 @@ async function lookupPincode(pincode) {
 
   const postOffices = data[0].PostOffice;
   const result = {
-    city: postOffices[0].District,
+    city: postOffices[0].Division || postOffices[0].District,
     district: postOffices[0].District,
     state: postOffices[0].State,
     areas: [...new Set(postOffices.map((p) => p.Name))],
