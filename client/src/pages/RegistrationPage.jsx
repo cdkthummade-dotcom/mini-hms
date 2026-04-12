@@ -202,12 +202,19 @@ export default function RegistrationPage() {
   if (stage === 'success') {
     return (
       <div className="min-h-screen bg-gray-50">
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <header className="bg-gradient-to-r from-blue-700 to-indigo-700 px-6 py-4 shadow-md">
           <div className="flex justify-between items-center max-w-4xl mx-auto">
-            <h1 className="font-bold text-blue-800">Demo Hospital — Registration</h1>
-            <button onClick={logout} className="text-sm text-gray-500 hover:text-gray-700">Logout</button>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2h8v6h6v8h-6v6H8v-6H2V8h6z"/></svg>
+              </div>
+              <h1 className="font-bold text-white text-lg">Demo Hospital</h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <SessionTimer />
+              <button onClick={logout} className="text-sm text-red-200 hover:text-white font-medium transition-colors">Logout</button>
+            </div>
           </div>
-          <div className="max-w-4xl mx-auto mt-2"><SessionTimer /></div>
         </header>
         {result?.warnings?.length > 0 && (
           <div className="max-w-2xl mx-auto mt-4 px-4">
@@ -231,12 +238,19 @@ export default function RegistrationPage() {
 
     return (
       <div className="min-h-screen bg-gray-50">
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <header className="bg-gradient-to-r from-blue-700 to-indigo-700 px-6 py-4 shadow-md">
           <div className="flex justify-between items-center max-w-4xl mx-auto">
-            <h1 className="font-bold text-blue-800">Demo Hospital — Registration</h1>
-            <button onClick={logout} className="text-sm text-gray-500 hover:text-gray-700">Logout</button>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2h8v6h6v8h-6v6H8v-6H2V8h6z"/></svg>
+              </div>
+              <h1 className="font-bold text-white text-lg">Demo Hospital</h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <SessionTimer />
+              <button onClick={logout} className="text-sm text-red-200 hover:text-white font-medium transition-colors">Logout</button>
+            </div>
           </div>
-          <div className="max-w-4xl mx-auto mt-2"><SessionTimer /></div>
         </header>
         <ReviewScreen
           formData={{
@@ -259,15 +273,22 @@ export default function RegistrationPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-20 shadow-sm print:hidden">
+      <header className="bg-gradient-to-r from-blue-700 to-indigo-700 px-6 py-4 sticky top-0 z-20 shadow-md print:hidden">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <h1 className="font-bold text-blue-800 text-lg">Demo Hospital — Patient Registration</h1>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2h8v6h6v8h-6v6H8v-6H2V8h6z"/></svg>
+            </div>
+            <div>
+              <h1 className="font-bold text-white text-lg">Demo Hospital — Patient Registration</h1>
+              <p className="text-xs text-blue-200 mt-0.5">Welcome, {user?.fullName}</p>
+            </div>
+          </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">Welcome, {user?.fullName}</span>
-            <button onClick={logout} className="text-sm text-gray-500 hover:text-red-600">Logout</button>
+            <SessionTimer />
+            <button onClick={logout} className="text-sm text-red-200 hover:text-white font-medium transition-colors">Logout</button>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto mt-1"><SessionTimer /></div>
       </header>
 
       <div className="max-w-7xl mx-auto flex gap-0">
@@ -275,12 +296,13 @@ export default function RegistrationPage() {
         <nav className="hidden lg:block w-48 shrink-0">
           <div className="sticky top-20 pt-6 pb-6 pl-4">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Sections</p>
-            <ul className="space-y-1">
-              {SECTIONS.map((s) => (
+            <ul className="space-y-0.5">
+              {SECTIONS.map((s, i) => (
                 <li key={s.id}>
                   <a href={`#${s.id}`}
-                    className="block text-xs text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-2 py-1.5 rounded transition-colors">
-                    {s.label}
+                    className="flex items-center gap-2 text-xs text-gray-600 hover:text-blue-700 hover:bg-blue-50 px-2 py-2 rounded-lg transition-all">
+                    <span className="w-5 h-5 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-[10px] font-bold shrink-0">{String.fromCharCode(65 + i)}</span>
+                    {s.label.substring(2)}
                   </a>
                 </li>
               ))}
@@ -319,7 +341,7 @@ export default function RegistrationPage() {
             <button
               type="button"
               onClick={handleSaveClick}
-              className="bg-blue-600 text-white px-10 py-3 rounded-xl font-bold text-lg hover:bg-blue-700 shadow-md"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-10 py-3 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-200/50 transition-all duration-200"
             >
               Save & Review
             </button>
