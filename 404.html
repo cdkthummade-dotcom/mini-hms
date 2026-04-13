@@ -1,22 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>HMS</title>
-  <script>
-    // GitHub Pages SPA Redirect
-    // When a user navigates directly to /mini-hms/login (or refreshes),
-    // GitHub Pages serves this 404.html. We redirect them back to index.html
-    // with the intended path encoded as ?p=/login so React Router can handle it.
-    var base = '/mini-hms';
-    var path = window.location.pathname.slice(base.length) || '/';
-    // Avoid redirect loops — only redirect if path is a real SPA route, not an asset
-    if (!path.match(/\.(js|css|png|jpg|svg|ico|json|woff|woff2|ttf)$/)) {
-      window.location.replace(
-        window.location.origin + base + '/?p=' + encodeURIComponent(path) + window.location.hash
-      );
-    }
-  </script>
-</head>
-<body></body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="HMS Patient Registration Portal" />
+    <title>HMS — Patient Registration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      // Restore path after GitHub Pages 404.html redirect
+      (function () {
+        var p = new URLSearchParams(window.location.search).get('p');
+        if (p) window.history.replaceState(null, '', '/mini-hms' + decodeURIComponent(p));
+      })();
+    </script>
+    <script type="module" crossorigin src="/mini-hms/assets/index-C_D4ivqw.js"></script>
+    <link rel="modulepreload" crossorigin href="/mini-hms/assets/vendor--ejHCorC.js">
+    <link rel="modulepreload" crossorigin href="/mini-hms/assets/axios-BOeqtr82.js">
+    <link rel="stylesheet" crossorigin href="/mini-hms/assets/index-tlEd_lWP.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
 </html>
