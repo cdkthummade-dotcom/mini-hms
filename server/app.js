@@ -62,7 +62,8 @@ app.use(session({
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 8 * 60 * 60 * 1000, // 8 hours
+    // No maxAge — cookie is a pure "session cookie" that dies when
+    // the browser (all tabs) is fully closed. Forces re-login.
   },
 }));
 

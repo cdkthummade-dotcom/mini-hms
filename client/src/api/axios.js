@@ -17,7 +17,7 @@ api.interceptors.request.use((config) => {
     config.url = config.url.replace('/api/', '/');
   }
   // Attach JWT token if available (fallback for blocked cookies)
-  const token = localStorage.getItem('hms_token');
+  const token = sessionStorage.getItem('hms_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

@@ -30,9 +30,10 @@ export function AuthProvider({ children, serverReady }) {
 
   const login = async (username, password) => {
     const { data } = await api.post('/api/auth/login', { username, password });
-    // Save JWT token for devices that block third-party cookies
+    // Save JWT token for devices that block third-party cookies.
+    // sessionStorage (not localStorage) so it dies when the tab is closed.
     if (data.token) {
-      localStorage.setItem('hms_token', data.token);
+      sessionStorage.setItem('hms_token', data.token);
     }
     setUser(data);
     return data;
@@ -42,7 +43,7 @@ export function AuthProvider({ children, serverReady }) {
     try {
       await api.post('/api/auth/logout');
     } catch (_) { /* best effort — session may already be expired */ }
-    localStorage.removeItem('hms_token');
+    sessionStorage.removeItem('hms_token');
     setUser(null);
     const base = import.meta.env.BASE_URL?.replace(/\/$/, '') || '';
     window.location.replace(`${base}/login`);
