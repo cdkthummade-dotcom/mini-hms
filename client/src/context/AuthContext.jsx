@@ -10,11 +10,22 @@ export function AuthProvider({ children, serverReady }) {
   const [loading, setLoading] = useState(true);
 
   const fetchMe = useCallback(async () => {
+    // Per-tab guard: sessionStorage is unique per tab, so a new tab
+    // won't have this flag and will force re-login even if the
+    // server-side session cookie is still valid.
+    if (!sessionStorage.getItem('hms_tab_auth')) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data } = await api.get('/api/auth/me');
       setUser(data);
     } catch {
       setUser(null);
+      sessionStorage.removeItem('hms_tab_auth');
+      sessionStorage.removeItem('hms_token');
     } finally {
       setLoading(false);
     }
@@ -30,6 +41,8 @@ export function AuthProvider({ children, serverReady }) {
 
   const login = async (username, password) => {
     const { data } = await api.post('/api/auth/login', { username, password });
+    // Mark this tab as authenticated (per-tab, not shared across tabs)
+    sessionStorage.setItem('hms_tab_auth', 'true');
     // Save JWT token for devices that block third-party cookies.
     // sessionStorage (not localStorage) so it dies when the tab is closed.
     if (data.token) {
@@ -43,6 +56,7 @@ export function AuthProvider({ children, serverReady }) {
     try {
       await api.post('/api/auth/logout');
     } catch (_) { /* best effort — session may already be expired */ }
+    sessionStorage.removeItem('hms_tab_auth');
     sessionStorage.removeItem('hms_token');
     setUser(null);
     const base = import.meta.env.BASE_URL?.replace(/\/$/, '') || '';
